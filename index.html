@@ -1,179 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Spin & Win Nigeria</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧠 Ultimate IQ Challenge</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-      margin: 0;
-      padding: 0;
-      color: white;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #1f2937, #111827);
+  color: #fff;
+  text-align: center;
+}
 
-    h1 {
-      margin-top: 15px;
-      font-size: 34px;
-      text-shadow: 0 0 10px rgba(0,0,0,0.6);
-    }
+.container {
+  width: 95%;
+  max-width: 480px;
+  margin: 40px auto;
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(12px);
+  padding: 28px 20px;
+  border-radius: 18px;
+  box-shadow: 0 4px 25px rgba(0,0,0,0.5);
+}
 
-    p {
-      margin: 5px 0 10px;
-      font-size: 22px;
-    }
+h1 {
+  margin-bottom: 8px;
+  font-size: 24px;
+  color: #00e5ff;
+}
 
-    #wheelContainer {
-      position: relative;
-      margin: 20px auto;
-      width: 90vw;
-      max-width: 420px;
-      height: 90vw;
-      max-height: 420px;
-    }
+p {
+  font-size: 16px;
+  margin-bottom: 15px;
+  color: #ddd;
+}
 
-    #wheel {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      border: 8px solid gold;
-      box-shadow: 0 0 30px rgba(255,215,0,0.8);
-      transition: transform 5s ease-out;
-      background: white;
-    }
+.progress {
+  width: 100%;
+  height: 8px;
+  background: #ffffff30;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
 
-    #pointer {
-      width: 0;
-      height: 0;
-      border-left: 22px solid transparent;
-      border-right: 22px solid transparent;
-      border-bottom: 34px solid #ff0000;
-      position: absolute;
-      top: -28px;
-      left: 50%;
-      transform: translateX(-50%);
-      filter: drop-shadow(0 0 10px red);
-    }
+.bar {
+  width: 0%;
+  height: 100%;
+  background: #00ffcc;
+  transition: 0.25s ease-in-out;
+}
 
-    #spinBtn {
-      margin-top: 10px;
-      padding: 16px 50px;
-      font-size: 22px;
-      background: linear-gradient(45deg, #ff512f, #f09819);
-      color: white;
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      box-shadow: 0 0 20px rgba(255,200,0,0.9);
-      animation: pulse 1.5s infinite;
-    }
+.question {
+  font-size: 20px;
+  margin: 20px 0 15px;
+  font-weight: bold;
+}
 
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.08); }
-      100% { transform: scale(1); }
-    }
+.btn {
+  width: 100%;
+  padding: 12px;
+  margin: 6px 0;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #000;
+  background: #00ffcc;
+  cursor: pointer;
+  transition: 0.2s;
+}
 
-    #result {
-      margin-top: 15px;
-      font-size: 24px;
-      font-weight: bold;
-      min-height: 30px;
-      text-shadow: 0 0 10px black;
-    }
-  </style>
+.btn:hover {
+  background: #00e5b3;
+}
+
+#loaderSection {
+  display: none;
+  margin-top: 25px;
+}
+
+.loader {
+  border: 5px solid #ffffff40;
+  border-top: 5px solid #00ffcc;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  margin: 15px auto;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+</style>
 </head>
 <body>
 
-  <h1>🇳🇬 Spin & Win Big Prizes!</h1>
-  <p>One spin could change your day 💸</p>
+<div class="container">
+  <h1>🧠 Ultimate IQ Challenge</h1>
+  <p>Answer all questions to unlock your IQ score!</p>
 
-  <div id="wheelContainer">
-    <div id="pointer"></div>
-    <canvas id="wheel" width="420" height="420"></canvas>
+  <div class="progress"><div class="bar" id="bar"></div></div>
+
+  <div id="quizSection">
+    <div class="question" id="questionTxt"></div>
+    <div id="answersDiv"></div>
   </div>
 
-  <button id="spinBtn">SPIN NOW 🔄</button>
-  <div id="result"></div>
+  <div id="loaderSection">
+    <p>Calculating your result…</p>
+    <div class="loader"></div>
+  </div>
+</div>
 
-  <audio id="spinSound">
-    <source src="https://cdn.pixabay.com/download/audio/2023/01/03/audio_8e604dcab5.mp3" type="audio/mp3">
-  </audio>
+<script>
+const CPA_REDIRECT = "https://max.bountyads.store/?utm_medium=8ebfe9ea8ea08199550e9d5cbe70ee55dbafe5f7&utm_campaign=IQ";
 
-  <script>
-    const canvas = document.getElementById("wheel");
-    const ctx = canvas.getContext("2d");
-    const spinBtn = document.getElementById("spinBtn");
-    const resultTxt = document.getElementById("result");
-    const spinSound = document.getElementById("spinSound");
+const questions = [
+  {
+    q: "What number is next? 5, 11, 17, 23, ?",
+    a: ["27","29","31","33"]
+  },
+  {
+    q: "Which word does NOT belong?",
+    a: ["Train","Car","Plane","Apple"]
+  },
+  {
+    q: "Solve: 7 × 6 ÷ 3 + 5 = ?",
+    a: ["19","21","17","23"]
+  }
+];
 
-    const prizes = [
-      "₦50,000 Cash",
-      "Free MTN Data",
-      "Infinix Phone",
-      "Jumia Voucher"
-    ];
+let idx = 0;
 
-    const redirectURL = "https://max.bountyads.store/?utm_medium=835c526b537aa50fec8ba156aef17fb1898072cf&utm_campaign=ni";
+function showQuestion() {
+  document.getElementById("bar").style.width = `${((idx)/questions.length)*100}%`;
 
-    const colors = [
-      "#ff3d3d",
-      "#ffe600",
-      "#00ff99",
-      "#00c3ff"
-    ];
+  const q = questions[idx];
+  document.getElementById("questionTxt").innerText = q.q;
+  const answersDiv = document.getElementById("answersDiv");
+  answersDiv.innerHTML = "";
 
-    const arc = 2 * Math.PI / prizes.length;
+  q.a.forEach(choice => {
+    const btn = document.createElement("button");
+    btn.className = "btn";
+    btn.innerText = choice;
+    btn.onclick = nextQuestion;
+    answersDiv.appendChild(btn);
+  });
+}
 
-    function drawWheel() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+function nextQuestion() {
+  idx++;
+  if (idx < questions.length) {
+    showQuestion();
+  } else {
+    document.getElementById("quizSection").style.display = "none";
+    document.getElementById("loaderSection").style.display = "block";
 
-      for (let i = 0; i < prizes.length; i++) {
-        const start = i * arc;
-        const end = start + arc;
+    setTimeout(()=>{
+      window.location = CPA_REDIRECT;
+    }, 1500);
+  }
+}
 
-        ctx.beginPath();
-        ctx.fillStyle = colors[i];
-        ctx.moveTo(210, 210);
-        ctx.arc(210, 210, 210, start, end);
-        ctx.fill();
-
-        ctx.save();
-        ctx.translate(210, 210);
-        ctx.rotate(start + arc / 2);
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#000";
-        ctx.font = "bold 20px Arial";
-        ctx.fillText(prizes[i], 125, 10);
-        ctx.restore();
-      }
-    }
-
-    drawWheel();
-
-    spinBtn.addEventListener("click", () => {
-      spinBtn.disabled = true;
-      resultTxt.textContent = "Spinning...";
-      spinSound.play();
-
-      const randomSpin = Math.floor(Math.random() * prizes.length);
-      const spins = 6;
-      const deg = 360 / prizes.length;
-      const finalAngle = (spins * 360) + (randomSpin * deg) + (deg / 2);
-
-      canvas.style.transform = `rotate(${finalAngle}deg)`;
-
-      setTimeout(() => {
-        resultTxt.textContent = `🎁 You won: ${prizes[randomSpin]}`;
-        setTimeout(() => {
-          window.location.href = redirectURL;
-        }, 2000);
-      }, 5200);
-    });
-  </script>
+showQuestion();
+</script>
 
 </body>
 </html>
